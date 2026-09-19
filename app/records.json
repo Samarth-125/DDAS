@@ -1,1 +1,17 @@
-[]
+[
+    {
+        "name": "test1.txt",
+        "size": 10,
+        "hash": "ab090fe8dd9e7c9bb91aabc3551e61b1a10f5915165e9e3cfebd82b5e0a5ceab"
+    },
+    {
+        "name": ".DS_Store",
+        "size": 20484,
+        "hash": "56d7558e0541051f0bf0c6d77bd557c87f0e170d92c2f43782685285a4c452bb"
+    },
+    {
+        "name": "test2.txt",
+        "size": 0,
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+]
