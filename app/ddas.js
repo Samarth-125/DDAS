@@ -142,7 +142,9 @@ async function checkFile(fileName) {
             sendActivity({
                 type: "duplicate",
                 name: fileName,
-                original: duplicate.name
+                original: duplicate.name,
+                size: stats.size,
+                hash: hash
             });
 
             const result = dialog.showMessageBoxSync({
@@ -190,7 +192,9 @@ async function checkFile(fileName) {
 
             sendActivity({
                 type: "new",
-                name: fileName
+                name: fileName,
+                size: stats.size,
+                hash: hash
             });
         }
 

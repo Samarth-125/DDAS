@@ -1,8 +1,11 @@
 function Activity({ activities }) {
     return (
         <section className="activity-section">
+
             <h2>Recent Activity</h2>
+
             <div className="activity-card">
+
                 {activities.length === 0 ? (
                     <p className="empty">
                         No recent activity.
@@ -21,7 +24,8 @@ function Activity({ activities }) {
                                 {activity.type === "duplicate" ? "⚠" : "✓"}
                             </span>
 
-                            <div>
+                            <div className="activity-info">
+
                                 <strong>{activity.name}</strong>
 
                                 <p>
@@ -29,6 +33,15 @@ function Activity({ activities }) {
                                         ? `Duplicate of ${activity.original}`
                                         : "New file detected"}
                                 </p>
+
+                                <small>
+                                    Size: {activity.size} bytes
+                                </small>
+
+                                <small className="hash">
+                                    SHA-256: {activity.hash}
+                                </small>
+
                             </div>
 
                         </div>

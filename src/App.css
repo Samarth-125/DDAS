@@ -125,3 +125,19 @@ main {
     padding: 25px;
     color: #6b7280;
 }
+
+.activity-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.activity-info small {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.activity-info .hash {
+    word-break: break-all;
+    font-family: monospace;
+}
