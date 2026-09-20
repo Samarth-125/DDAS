@@ -7,6 +7,7 @@ import Activity from "./components/Activity";
 
 import "./App.css";
 
+// Controls the main DDAS dashboard.
 function App() {
     const [records, setRecords] = useState([]);
     const [activities, setActivities] = useState([]);

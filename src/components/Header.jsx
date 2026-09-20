@@ -1,4 +1,4 @@
-// Displays DDAS title and active status
+// Displays the DDAS title and monitoring status.
 function Header() {
     return (
         <header className="header">

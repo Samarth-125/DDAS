@@ -1,4 +1,4 @@
-// Displays recent file activity
+// Displays recent file detection and duplicate activity.
 function Activity({ activities }) {
     return (
         <section className="activity-section">

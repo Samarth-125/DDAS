@@ -1,4 +1,4 @@
-// Displays monitoring status and statistics
+// Displays monitoring status and file statistics.
 function Status({ fileCount, duplicateCount }) {
     return (
         <section className="status-section">
