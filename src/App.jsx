@@ -1,3 +1,4 @@
+// Controls the main DDAS dashboard
 import { useEffect, useState } from "react";
 
 import Header from "./components/Header";

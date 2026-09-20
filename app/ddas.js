@@ -1,3 +1,4 @@
+// Main DDAS logic: watches Downloads, hashes files, detects duplicates
 const { app, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
@@ -5,17 +6,18 @@ const crypto = require("crypto");
 
 let mainWindow;
 
-// Keeps track of files currently being processed.
+// Stores files that are currently being checked.
 const processingFiles = new Set();
 
 // Prevents the same file event from being processed repeatedly.
 const recentlyProcessed = new Map();
 
+// Connects the DDAS logic to the Electron window.
 function setWindow(window) {
     mainWindow = window;
 }
 
-// Creates a SHA-256 hash from the file contents.
+// Creates a SHA-256 fingerprint from the file contents.
 function calculateHash(filePath) {
     return new Promise((resolve, reject) => {
         const hash = crypto.createHash("sha256");
@@ -35,7 +37,7 @@ function calculateHash(filePath) {
     });
 }
 
-// Reads saved file records from records.json.
+// Reads previously stored file records.
 function loadRecords() {
     const recordsPath = path.join(__dirname, "records.json");
 
@@ -47,7 +49,7 @@ function loadRecords() {
     }
 }
 
-// Saves file records to records.json.
+// Saves file records to the JSON file.
 function saveRecords(records) {
     const recordsPath = path.join(__dirname, "records.json");
 
@@ -57,7 +59,7 @@ function saveRecords(records) {
     );
 }
 
-// Sends file activity from Electron to the React interface.
+// Sends file activity from Electron to React.
 function sendActivity(activity) {
     if (mainWindow) {
         mainWindow.webContents.send(
@@ -67,7 +69,7 @@ function sendActivity(activity) {
     }
 }
 
-// Waits until the file size stops changing.
+// Waits until the file size stops changing before processing it.
 function waitForFile(filePath) {
     return new Promise((resolve, reject) => {
         let previousSize = -1;
@@ -99,7 +101,7 @@ function waitForFile(filePath) {
     });
 }
 
-// Checks a detected file for duplicates.
+// Checks a downloaded file and determines whether it is a duplicate.
 async function checkFile(fileName) {
     if (processingFiles.has(fileName)) {
         return;
@@ -131,6 +133,7 @@ async function checkFile(fileName) {
 
         const records = loadRecords();
 
+        // Looks for an existing file with the same SHA-256 hash.
         const duplicate = records.find((record) => {
             return record.hash === hash;
         });
@@ -147,6 +150,7 @@ async function checkFile(fileName) {
                 hash: hash
             });
 
+            // Shows the user the duplicate file options.
             const result = dialog.showMessageBoxSync({
                 type: "warning",
                 title: "Duplicate File Detected",
@@ -231,7 +235,7 @@ function watchDownloads() {
                 return;
             }
 
-            // Ignore macOS Finder files.
+            // Ignores macOS Finder files.
             if (fileName === ".DS_Store") {
                 return;
             }
@@ -246,7 +250,7 @@ function watchDownloads() {
     );
 }
 
-// Starts DDAS file monitoring.
+// Starts monitoring the Downloads folder.
 function startDDAS() {
     watchDownloads();
 }

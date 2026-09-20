@@ -1,3 +1,4 @@
+// Displays recent file activity
 function Activity({ activities }) {
     return (
         <section className="activity-section">

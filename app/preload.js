@@ -1,3 +1,4 @@
+// Safely connects Electron/Node.js with React
 const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("ddas", {
     getRecords: () => {

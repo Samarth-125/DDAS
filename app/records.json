@@ -1,3 +1,5 @@
+// Stores file names, sizes and SHA-256 hashes
+
 [
     {
         "name": "text1.txt",

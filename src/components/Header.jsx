@@ -1,3 +1,4 @@
+// Displays DDAS title and active status
 function Header() {
     return (
         <header className="header">
