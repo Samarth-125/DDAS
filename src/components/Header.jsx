@@ -6,7 +6,6 @@ function Header() {
                 <h1>DDAS</h1>
                 <p>Data Download Duplication Alert System</p>
             </div>
-
             <div className="status-badge">
                 <span>●</span> ACTIVE
             </div>
