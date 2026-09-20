@@ -1,5 +1,10 @@
 [
     {
+        "name": "test.txt",
+        "size": 0,
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
         "name": "text1.txt",
         "size": 10,
         "hash": "ab090fe8dd9e7c9bb91aabc3551e61b1a10f5915165e9e3cfebd82b5e0a5ceab"

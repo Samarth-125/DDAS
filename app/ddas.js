@@ -1,5 +1,5 @@
 // Main DDAS logic: watches Downloads, hashes files, detects duplicates
-const { app, dialog } = require("electron");
+const { app, dialog, shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
@@ -35,7 +35,23 @@ function loadRecords() {
     const recordsPath = path.join(__dirname, "records.json");
     try {
         const data = fs.readFileSync(recordsPath, "utf-8");
-        return JSON.parse(data);
+        const records = JSON.parse(data);
+        const downloadsPath = app.getPath("downloads");
+
+        // Removes records for files that no longer exist.
+        const activeRecords = records.filter((record) => {
+            const filePath = path.join(
+                downloadsPath,
+                record.name
+            );
+            return fs.existsSync(filePath);
+        });
+
+        if (activeRecords.length !== records.length) {
+            saveRecords(activeRecords);
+        }
+
+        return activeRecords;
     } catch (error) {
         return [];
     }
@@ -77,7 +93,7 @@ function waitForFile(filePath) {
                     return;
                 }
                 previousSize = stats.size;
-                setTimeout(checkSize, 300);
+                setTimeout(checkSize, 100);
             });
         }
         checkSize();
@@ -139,8 +155,13 @@ async function checkFile(fileName) {
                 cancelId: 0
             });
             if (result === 1) {
-                fs.unlinkSync(filePath);
-                console.log("Duplicate file deleted.");
+                // Moves the duplicate file to macOS Trash.
+                await shell.trashItem(filePath);
+
+                // For permanent deletion instead, use:
+                // fs.unlinkSync(filePath);
+
+                console.log("Duplicate file moved to Trash.");
             } else {
                 console.log("Duplicate file kept.");
             }
@@ -201,8 +222,5 @@ function watchDownloads() {
 function startDDAS() {
     watchDownloads();
 }
-module.exports = {
-    setWindow,
-    startDDAS,
-    loadRecords
+module.exports = {setWindow,startDDAS,loadRecords
 };
