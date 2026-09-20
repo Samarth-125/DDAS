@@ -15,6 +15,10 @@ DDAS is a desktop application that monitors the Downloads folder and detects dup
 - Stores file records locally in a JSON file
 - Displays recent activity in the desktop interface
 
+## Testing
+
+You can use the test file inside the `Test_Model` folder and move it to the Downloads folder to check whether DDAS is working correctly.
+
 ## How It Works
 
 ```text
@@ -41,3 +45,5 @@ Compare With Stored Hashes
 Save Record  Show Alert
               ↓
           Keep / Delete
+
+
