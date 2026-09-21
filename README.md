@@ -45,5 +45,3 @@ Compare With Stored Hashes
 Save Record  Show Alert
               ↓
           Keep / Delete
-
-

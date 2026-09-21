@@ -7,7 +7,7 @@ function Status({ fileCount, duplicateCount }) {
                     <span className="green-dot">●</span>
                     Monitoring Downloads
                 </div>
-                <p> DDAS is watching your Downloads folder for new files. </p>
+                <p>DDAS is watching your Downloads folder for new files.</p>
             </div>
 
             <div className="stats">
@@ -15,7 +15,6 @@ function Status({ fileCount, duplicateCount }) {
                     <h2>{fileCount}</h2>
                     <p>Files Recorded</p>
                 </div>
-
                 <div className="stat-card">
                     <h2>{duplicateCount}</h2>
                     <p>Duplicates Detected</p>
@@ -24,5 +23,4 @@ function Status({ fileCount, duplicateCount }) {
         </section>
     );
 }
-
 export default Status;

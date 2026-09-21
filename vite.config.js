@@ -1,10 +1,9 @@
 const { defineConfig } = require("vite");
-
-// Vite configuration for the React interface.
+const path = require("path");
+// Configures Vite to build the React interface for Electron.
 module.exports = defineConfig({
-    // Use relative paths so Electron can load the built files locally.
+    // Uses relative paths so Electron can load the files locally.
     base: "./",
-
     build: {
         outDir: "dist"
     }

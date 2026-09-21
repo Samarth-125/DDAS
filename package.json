@@ -4,9 +4,11 @@
   "description": "Data Download Duplication Alert System",
   "main": "app/main.js",
   "scripts": {
+    "dev": "vite",
     "build": "vite build",
     "start": "electron .",
-    "electron": "npm run build && electron ."
+    "electron": "npm run build && electron .",
+    "terminal": "node app/terminal.js"
   },
   "devDependencies": {
     "electron": "^44.4.3",

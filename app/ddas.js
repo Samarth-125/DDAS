@@ -1,17 +1,16 @@
 // Main DDAS logic: watches Downloads, hashes files, detects duplicates
-const { app, dialog, shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
-let mainWindow;
 // Stores files that are currently being checked.
 const processingFiles = new Set();
 // Prevents the same file event from being processed repeatedly.
 const recentlyProcessed = new Map();
-// Connects the DDAS logic to the Electron window.
-function setWindow(window) {
-    mainWindow = window;
-}
+// Stores the Downloads folder being monitored.
+let downloadsPath;
+// Stores functions used by Electron or Terminal when activity happens.
+let onActivity;
+let onDuplicate;
 
 // Creates a SHA-256 fingerprint from the file contents.
 function calculateHash(filePath) {
@@ -33,10 +32,10 @@ function calculateHash(filePath) {
 // Reads previously stored file records.
 function loadRecords() {
     const recordsPath = path.join(__dirname, "records.json");
+
     try {
         const data = fs.readFileSync(recordsPath, "utf-8");
         const records = JSON.parse(data);
-        const downloadsPath = app.getPath("downloads");
 
         // Removes records for files that no longer exist.
         const activeRecords = records.filter((record) => {
@@ -44,13 +43,13 @@ function loadRecords() {
                 downloadsPath,
                 record.name
             );
+
             return fs.existsSync(filePath);
         });
 
         if (activeRecords.length !== records.length) {
             saveRecords(activeRecords);
         }
-
         return activeRecords;
     } catch (error) {
         return [];
@@ -63,15 +62,6 @@ function saveRecords(records) {
     fs.writeFileSync(
         recordsPath,JSON.stringify(records, null, 4)
     );
-}
-
-// Sends file activity from Electron to React.
-function sendActivity(activity) {
-    if (mainWindow) {
-        mainWindow.webContents.send(
-            "file-activity",activity
-        );
-    }
 }
 
 // Waits until the file size stops changing before processing it.
@@ -96,6 +86,7 @@ function waitForFile(filePath) {
                 setTimeout(checkSize, 100);
             });
         }
+
         checkSize();
     });
 }
@@ -111,10 +102,11 @@ async function checkFile(fileName) {
     ) {
         return;
     }
-
     processingFiles.add(fileName);
-    const downloadsPath = app.getPath("downloads");
-    const filePath = path.join(downloadsPath, fileName);
+    const filePath = path.join(
+        downloadsPath,fileName
+    );
+
     try {
         const stats = await waitForFile(filePath);
         const hash = await calculateHash(filePath);
@@ -123,64 +115,65 @@ async function checkFile(fileName) {
         console.log("Size:", stats.size, "bytes");
         console.log("SHA-256:", hash);
         const records = loadRecords();
+
         // Looks for an existing file with the same SHA-256 hash.
         const duplicate = records.find((record) => {
             return record.hash === hash;
         });
+
         if (duplicate) {
             console.log("⚠ Duplicate detected!");
             console.log("Original file:", duplicate.name);
-            sendActivity({
-                type: "duplicate",
-                name: fileName,
-                original: duplicate.name,
-                size: stats.size,
-                hash: hash
-            });
 
-            // Shows the user the duplicate file options.
-            const result = dialog.showMessageBoxSync({
-                type: "warning",
-                title: "Duplicate File Detected",
-                message: "A duplicate file has been detected.",
-                detail:
-                    `File: ${fileName}\n\n` +
-                    `Original file: ${duplicate.name}\n\n` +
-                    "The files have the same content.",
-                buttons: [
-                    "Keep File",
-                    "Delete File"
-                ],
-                defaultId: 0,
-                cancelId: 0
-            });
-            if (result === 1) {
-                // Moves the duplicate file to macOS Trash.
-                await shell.trashItem(filePath);
+            if (onActivity) {
+                onActivity({
+                    type: "duplicate",
+                    name: fileName,
+                    original: duplicate.name,
+                    size: stats.size,
+                    hash: hash
+                });
+            }
 
-                // For permanent deletion instead, use:
-                // fs.unlinkSync(filePath);
+            // Asks the current interface whether the duplicate should be deleted.
+            const shouldDelete = onDuplicate
+                ? await onDuplicate({
+                    name: fileName,
+                    original: duplicate.name,
+                    size: stats.size,
+                    hash: hash
+                })
+                : false;
 
+            if (shouldDelete) {
                 console.log("Duplicate file moved to Trash.");
             } else {
                 console.log("Duplicate file kept.");
             }
+
         } else {
             console.log("✓ New file");
+
             records.push({
                 name: fileName,
                 size: stats.size,
                 hash: hash
             });
+
             saveRecords(records);
+
             console.log("File saved to records.json");
-            sendActivity({
-                type: "new",
-                name: fileName,
-                size: stats.size,
-                hash: hash
-            });
+
+            if (onActivity) {
+                onActivity({
+                    type: "new",
+                    name: fileName,
+                    size: stats.size,
+                    hash: hash
+                });
+            }
         }
+
         console.log("--------------------------------");
         recentlyProcessed.set(
             fileName,
@@ -188,10 +181,7 @@ async function checkFile(fileName) {
         );
 
     } catch (error) {
-        console.log(
-            "Could not process file:",
-            fileName
-        );
+        console.log("Could not process file:",fileName);
     } finally {
         processingFiles.delete(fileName);
     }
@@ -199,15 +189,16 @@ async function checkFile(fileName) {
 
 // Watches the Downloads folder for new files.
 function watchDownloads() {
-    const downloadsPath = app.getPath("downloads");
     console.log("Watching Downloads folder:");
     console.log(downloadsPath);
+
     fs.watch(
         downloadsPath,
         (eventType, fileName) => {
             if (!fileName) {
                 return;
             }
+
             // Ignores macOS Finder files.
             if (fileName === ".DS_Store") {
                 return;
@@ -217,10 +208,14 @@ function watchDownloads() {
         }
     );
 }
-
 // Starts monitoring the Downloads folder.
-function startDDAS() {
+function startDDAS(options) {
+    downloadsPath = options.downloadsPath;
+    onActivity = options.onActivity;
+    onDuplicate = options.onDuplicate;
     watchDownloads();
 }
-module.exports = {setWindow,startDDAS,loadRecords
+module.exports = {
+    startDDAS,
+    loadRecords
 };

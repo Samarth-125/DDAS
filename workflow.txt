@@ -1,0 +1,38 @@
+
+---
+# How the two versions work
+### Electron
+npm run electron
+       ↓
+Vite builds React
+       ↓
+Electron starts
+       ↓
+main.js
+       ↓
+ddas.js
+       ↓
+Downloads
+       ↓
+SHA-256
+       ↓
+Duplicate?
+       ↓
+Electron dialog
+
+
+
+### Termina;
+npm run terminal
+       ↓
+terminal.js
+       ↓
+ddas.js
+       ↓
+Downloads
+       ↓
+SHA-256
+       ↓
+Duplicate?
+       ↓
+Terminal question

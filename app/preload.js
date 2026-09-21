@@ -1,7 +1,5 @@
-// Safely connects Electron/Node.js with React
 const { contextBridge, ipcRenderer } = require("electron");
-
-// Provides safe communication between React and Electron.
+// Provides safe communication between Electron and React.
 contextBridge.exposeInMainWorld("ddas", {
     // Gets saved file records from Electron.
     getRecords: () => {
